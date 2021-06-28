@@ -1,5 +1,14 @@
 'use strict';
 
+const optArticleSelector = '.post',
+  optTitleSelector = '.post-title',
+  optTitleListSelector = '.titles',
+  optArticleAuthorSelector = '.post-author',
+  optTagsListSelector = '.list.tags',
+  optCloudClassCount = 5,
+  optCloudClassPrefix = 'tag-size-',
+  optAuthorsListSelector = '.list.authors',
+  optArticleTagsSelector = '.post-tags .list';
 {
   const titleClickHandler = function(event) {
     console.log('Link was clicked!');
@@ -46,12 +55,6 @@
   };
 
 
-  const optArticleSelector = '.post',
-    optTitleSelector = '.post-title',
-    optTitleListSelector = '.titles',
-    optArticleAuthorSelector = '.post-author',
-    optTagsListSelector = '.tags .list',
-    optArticleTagsSelector = '.post-tags .list';
 
   // eslint-disable-next-line no-inner-declarations
   function generateTitleLinks(customSelector = '') {
@@ -104,10 +107,36 @@
   generateTitleLinks();
 
   // eslint-disable-next-line no-inner-declarations
+  function calculateTagsParams(tags) {
+    const parms = {
+      min: 99999,
+      max: 0
+    };
+    for (let tag in tags) {
+      parms.max = Math.max(tags[tag], parms.max);
+      parms.min = Math.min(tags[tag], parms.min);
+    }
+    return parms;
+  }
+  
+  // eslint-disable-next-line no-inner-declarations
+  function calculateTagClass(count, params) {
+    const normalizedCount = count - params.min;
+    const normalizedMax = params.max - params.min;
+    const percentage = normalizedCount/normalizedMax;
+    const classNumber = Math.floor(percentage * (optCloudClassCount - 1) + 1);
+
+    const tagClassResult = optCloudClassPrefix + classNumber;
+    return tagClassResult;
+  }
+
+
+
+  // eslint-disable-next-line no-inner-declarations
   function generateTags(){
 
-    /* [NEW] create a new variable allTags with an empty array */
-    let allTags = [];
+    /* [NEW] create a new variable allTags with an empty object */
+    let allTags = {};
     /* find all articles */
 
     const articles = document.querySelectorAll(optArticleSelector);
@@ -147,9 +176,11 @@
 
         html = html + linkHTML;
         /* [NEW] check if this link is NOT already in allTags */
-        if(allTags.indexOf(linkHTML) == -1){
+        if(!allTags[tag]) {
         /* [NEW] add generated code to allTags array */
-          allTags.push(linkHTML);
+          allTags[tag] = 1;
+        } else {
+          allTags[tag]++;
         }
         /* END LOOP: for each tag */
       }
@@ -162,10 +193,25 @@
     /* END LOOP: for every article: */
     }
     /* [NEW] find list of tags in right column */
-    const tagList = document.querySelector('.tags');
+    const tagList = document.querySelector(optTagsListSelector);
 
-    /* [NEW] add html from allTags to tagList */
-    tagList.innerHTML = allTags.join(' ');
+    /* [NEW] create variable for all links HTML code */
+    const tagsParams = calculateTagsParams(allTags);
+    console.log('tagsParams:', tagsParams);
+    let allTagsHTML = '';
+
+    /* [NEW] START LOOP: for each tag in allTags: */
+    for(let tag in allTags){
+    /* [NEW] generate code of a link and add it to allTagsHTML */
+      
+      allTagsHTML += '<li><a href="#tag-' + tag + '" class="' + calculateTagClass(allTags[tag], tagsParams) +'">' + tag + ' </a></li>';
+      console.log(allTagsHTML);
+      console.log(allTags[tag]);
+    }
+    /* [NEW] END LOOP: for each tag in allTags: */
+
+    /*[NEW] add HTML from allTagsHTML to tagList */
+    tagList.innerHTML = allTagsHTML;
   }
 
   generateTags();
@@ -206,7 +252,7 @@
   // eslint-disable-next-line no-inner-declarations
   function addClickListenersToTags(){
     /* find all links to tags */
-    const links = document.querySelectorAll('.post-tags li a');
+    const links = document.querySelectorAll('.post-tags li a', '.list.tags li a');
     /* START LOOP: for each link */
     for (let link of links) {
       /* add tagClickHandler as event listener for that link */
@@ -218,7 +264,22 @@
   addClickListenersToTags();
 
   // eslint-disable-next-line no-inner-declarations
+  function calculateAuthorsParams(authors) {
+    const params = {
+      min : 99999,
+      max : 0
+    };
+    for (let author in authors) {
+      params.max = Math.max(authors[author], params.max);
+      params.min = Math.min(authors[author], params.min);
+    }
+    return params; 
+  }
+
+  // eslint-disable-next-line no-inner-declarations
   function generateAuthors() {
+
+    let allAuthors = {};
 
     const articles = document.querySelectorAll(optArticleSelector);
 
@@ -234,11 +295,28 @@
       const linkHTML = 'by <a href="#author-' + author + '">' + author + '</a>';
 
       html = html + linkHTML;
+
+      if(!allAuthors[author]) {
+        allAuthors[author] = 1;
+      } else {
+        allAuthors[author]++;
+      }
       
       authorsWrapper.insertAdjacentHTML('afterbegin', html);
       console.log(html);
     }
+    const authorList = document.querySelector(optAuthorsListSelector);
 
+    const authorsParams = calculateAuthorsParams(allAuthors);
+    console.log('authorsParams:', authorsParams);
+    let allAuthorsHTML = '';
+
+    for (let author in allAuthors) {
+      allAuthorsHTML += '<li><a href="#' + author + '" class="author-name ' + calculateTagClass(allAuthors[author], authorsParams) + '">' + author + '(' + allAuthors[author] + ')</a></li>';
+      console.log(allAuthorsHTML);
+      console.log(allAuthors[author]);
+    }
+    authorList.innerHTML = allAuthorsHTML;
   }
   generateAuthors();
 

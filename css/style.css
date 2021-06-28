@@ -110,4 +110,40 @@ body {
 .post-tags p {
   margin: 0 10px 0 0;
 }
+
+.tags {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  font-family: "Sacramento", cursive;
+}
+
+.tags a {
+  text-decoration: none;
+  color: blue;
+  text-transform: uppercase;
+}
+
+.tag-size-5 {
+  font-size: 72px;
+}
+
+.tag-size-4 {
+  font-size: 60px;
+}
+
+.tag-size-3 {
+  font-size: 48px;
+}
+
+.tag-size-2 {
+  font-size: 36px;
+}
+
+.tag-size-1 {
+  font-size: 24px;
+}
 /*# sourceMappingURL=style.css.map */
